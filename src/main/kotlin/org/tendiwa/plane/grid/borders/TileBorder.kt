@@ -2,6 +2,10 @@ package org.tendiwa.plane.grid.borders
 
 import org.tendiwa.plane.directions.CardinalDirection
 import org.tendiwa.plane.directions.CardinalDirection.*
+import org.tendiwa.plane.directions.OrdinalDirection.*
+import org.tendiwa.plane.grid.rectangles.GridRectangle
+import org.tendiwa.plane.grid.rectangles.corner
+import org.tendiwa.plane.grid.rectangles.sides.side
 import org.tendiwa.plane.grid.tiles.Tile
 
 /**
@@ -19,4 +23,31 @@ fun Tile.border(side: CardinalDirection): TileBorder =
         W -> TileBorder(x * 2, y)
     }
 
+/**
+ * Returns the border of the [GridRectangle] composed of [TileBorder] elements.
+ */
+val GridRectangle.tileBorder: List<TileBorder>
+    get() =
+    bordersAtCorners().plus(
+        listOf(N, E, S, W).flatMap { bordersFromSideExceptCorners(it) }
+    )
 
+private fun GridRectangle.bordersFromSideExceptCorners(
+    side: CardinalDirection
+): List<TileBorder> =
+    this.side(side)
+        .tilesList
+        .map { it.border(side) }
+        .let { it.subList(1, it.size - 1) }
+
+private fun GridRectangle.bordersAtCorners(): List<TileBorder> =
+    listOf(
+        corner(NE).border(N),
+        corner(NE).border(E),
+        corner(NW).border(N),
+        corner(NW).border(W),
+        corner(SE).border(S),
+        corner(SE).border(E),
+        corner(SW).border(S),
+        corner(SW).border(W)
+    )
